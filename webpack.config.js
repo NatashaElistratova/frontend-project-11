@@ -1,9 +1,9 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 export default {
   mode: process.env.NODE_ENV || 'development',
@@ -20,10 +20,6 @@ export default {
         },
       },
       { test: /\.css$/, use: ['style-loader', 'css-loader', 'postcss-loader'] },
-      // {
-      //   test: /\.scss$/,
-      //   use: ['style-loader', 'css-loader', 'sass-loader', 'postcss-loader'],
-      // },
       {
         test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         use: 'url-loader?limit=10000',
@@ -42,7 +38,7 @@ export default {
   entry: './index.js',
   output: {
     clean: true,
-    filename: 'bundle.js',
-    path: path.join(__dirname, 'dist'),
+    // filename: 'bundle.js',
+    // path: path.join(__dirname, 'dist'),
   },
 };
