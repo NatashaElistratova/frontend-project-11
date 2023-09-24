@@ -1,6 +1,6 @@
 {
   "name": "@hexlet/code",
-  "description": "RSS agrigator",
+  "description": "RSS aggregator",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
