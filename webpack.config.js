@@ -1,14 +1,12 @@
-// import path from 'path';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default {
   mode: process.env.NODE_ENV || 'development',
-  entry: './index.js',
-  output: {
-    clean: true,
-    // filename: 'bundle.js',
-    // path: path.join(__dirname, 'build/app/'),
-  },
   module: {
     rules: [
       {
@@ -41,4 +39,10 @@ export default {
       template: 'index.html',
     }),
   ],
+  entry: './index.js',
+  output: {
+    clean: true,
+    filename: 'bundle.js',
+    path: path.join(__dirname, 'dist'),
+  },
 };
