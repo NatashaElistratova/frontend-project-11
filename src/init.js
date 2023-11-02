@@ -1,13 +1,11 @@
 import * as yup from 'yup';
 import onChange from 'on-change';
 import isEmpty from 'lodash/isEmpty.js';
-import has from 'lodash/has.js';
-import keyBy from 'lodash/keyBy.js';
+import watch from './view.js';
 
 export default () => {
   const form = document.querySelector('[data-form="rss-form"]');
   const urlInput = document.querySelector('#url-input');
-  const errorEl = document.querySelector('.feedback');
 
   const initialState = {
     feeds: [],
@@ -19,62 +17,18 @@ export default () => {
       },
     },
   };
-  const setInputValue = (value) => {
-    urlInput.value = value || '';
-  };
 
-  const renderError = (el, state) => {
-    const { errors } = state.form;
-    const error = errors.urlInput;
-    const errorMessage = error?.message;
+  const state = onChange(initialState, watch(urlInput, initialState));
 
-    if (!error) {
-      el.classList.remove('is-invalid');
-      errorEl.textContent = '';
-      return;
-    }
+  const schema = yup.string().url('Ссылка должна быть валидным URL');
 
-    if (errorEl.textContent) {
-      errorEl.textContent = errorMessage;
-      return;
-    }
-
-    el.classList.add('is-invalid');
-    errorEl.textContent = errorMessage;
-  };
-
-  const renderForm = (el, state) => (path, value, prevValue) => {
-    console.log(path);
-    switch (path) {
-      case 'form.errors':
-        renderError(el, state);
-        break;
-      case 'form.fields.urlInput':
-        setInputValue(value);
-        break;
-
-      default:
-        break;
-    }
-  };
-
-  const state = onChange(initialState, renderForm(urlInput, initialState));
-
-  const schema = yup.object().shape({
-    urlInput: yup.string()
-      .url('Ссылка должна быть валидным URL')
-      .notOneOf(
-        [...state.feeds],
-        'RSS уже существует',
-      ),
-  });
-
-  const validate = async (fields) => {
+  const validateUrl = async (el, feeds) => {
+    const actualSchema = schema.notOneOf(feeds, 'RSS уже существует');
     try {
-      await schema.validate(fields, { abortEarly: false });
+      await actualSchema.validate(el, { abortEarly: false });
       return {};
     } catch (e) {
-      return keyBy(e.inner, 'path');
+      return { urlInput: e.message };
     }
   };
 
@@ -84,7 +38,7 @@ export default () => {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const errors = await validate(state.form.fields);
+    const errors = await validateUrl(state.form.fields.urlInput, state.feeds);
     state.form.errors = errors;
     state.form.valid = isEmpty(errors);
 
@@ -93,7 +47,6 @@ export default () => {
       state.form.fields.urlInput = '';
       urlInput.focus();
     }
-
     console.log(state);
   });
 };
