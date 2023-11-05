@@ -3,12 +3,12 @@ export default (str, i18n) => {
   const feed = parser.parseFromString(str, 'text/xml');
   const errorNode = feed.querySelector('parsererror');
 
-  if (!errorNode) {
-    return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    if (!errorNode) {
       resolve(feed);
-    });
-  }
-
-  const errorMessage = i18n.t('errors.parsingError');
-  throw new Error(errorMessage);
+    } else {
+      const errorMessage = i18n.t('errors.parsingError');
+      reject(new Error(errorMessage));
+    }
+  });
 };
