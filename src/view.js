@@ -1,7 +1,7 @@
 const urlInput = document.querySelector('#url-input');
-const errorEl = document.querySelector('.feedback');
 
 const renderError = (el, state) => {
+  const errorEl = document.querySelector('.feedback');
   const { errors } = state.form;
   const errorMessage = errors.urlInput;
 
@@ -25,7 +25,7 @@ export default (el, state) => (path, value) => {
     case 'form.errors':
       renderError(el, state);
       break;
-    case 'form.fields.urlInput':
+    case 'form.urlInput':
       urlInput.value = value || '';
       break;
 
