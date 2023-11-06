@@ -15,6 +15,7 @@ export default async () => {
 
   const initialState = {
     feeds: [],
+    posts: [],
     form: {
       valid: true,
       errors: {},
@@ -27,8 +28,6 @@ export default async () => {
     debug: false,
     resources,
   });
-
-  const getRss = (url) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`, { params: { disableCache: true } });
 
   yup.setLocale({
     string: {
@@ -53,6 +52,60 @@ export default async () => {
     }
   };
 
+  const renderPosts = (watchedState) => {
+    const postsWrap = document.querySelector('.posts');
+    const postsTitle = document.createElement('h2');
+    postsTitle.innerText = i18n.t('headings.posts');
+    postsWrap.appendChild(postsTitle);
+
+    watchedState.posts.forEach((post) => {
+      const postLinkWrap = document.createElement('div');
+      const postLink = document.createElement('a');
+      postLink.setAttribute('href', post.link);
+      postLink.setAttribute('target', '_blank');
+      postLink.innerText = post.title;
+
+      postLinkWrap.appendChild(postLink);
+      postsWrap.appendChild(postLinkWrap);
+    });
+  };
+
+  const renderFeeds = (watchedState) => {
+    const feedsWrap = document.querySelector('.feeds');
+    const feedsTitle = document.createElement('h2');
+    feedsTitle.innerText = i18n.t('headings.feeds');
+
+    feedsWrap.appendChild(feedsTitle);
+
+    watchedState.feeds.forEach((feed) => {
+      const feedWrap = document.createElement('div');
+      const feedTitle = document.createElement('h3');
+      const feedSubTitle = document.createElement('p');
+
+      feedTitle.innerText = feed.title;
+      feedSubTitle.innerText = feed.description;
+      feedWrap.appendChild(feedTitle);
+      feedWrap.appendChild(feedSubTitle);
+      feedsWrap.appendChild(feedWrap);
+    });
+  };
+
+  const getRss = (url) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`, { params: { disableCache: true } })
+    .then((result) => parseRss(result.data.contents, state.feeds.length, i18n))
+    .then((data) => {
+      const { feed, posts } = data;
+      state.feeds = [...state.feeds, feed];
+      state.posts = [...state.posts, ...posts];
+      renderPosts(state);
+      renderFeeds(state);
+      state.form.urlInput = '';
+      urlInput.focus();
+    })
+    .catch((error) => {
+      state.form.errors = { urlInput: error.message };
+      state.form.valid = false;
+    });
+
   urlInput.addEventListener('input', (e) => {
     state.form.urlInput = e.target.value;
   });
@@ -65,17 +118,8 @@ export default async () => {
 
     if (!state.form.valid) return;
 
-    getRss(state.form.urlInput)
-      .then((result) => parseRss(result.contents, i18n))
-      .then((feed) => {
-        state.feeds = [...state.feeds, feed];
-        state.form.urlInput = '';
-        urlInput.focus();
-      })
-      .catch((error) => {
-        state.form.errors = { urlInput: error.message };
-        state.form.valid = false;
-      });
+    await getRss(state.form.urlInput);
+
     console.log(state);
   });
 };
