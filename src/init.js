@@ -19,6 +19,7 @@ export default async () => {
     form: {
       valid: true,
       errors: {},
+      success: {},
       urlInput: '',
     },
   };
@@ -96,6 +97,8 @@ export default async () => {
       const { feed, posts } = data;
       state.feeds = [...state.feeds, feed];
       state.posts = [...state.posts, ...posts];
+      state.form.success = { urlInput: i18n.t('success.rssAdded') };
+
       renderPosts(state);
       renderFeeds(state);
       state.form.urlInput = '';

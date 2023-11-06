@@ -11,6 +11,9 @@ export default {
       },
       parsingError: 'Ресурс не содержит валидный RSS',
     },
+    success: {
+      rssAdded: 'RSS успешно добавлен',
+    },
     headings: {
       posts: 'Посты',
       feeds: 'Фиды',
