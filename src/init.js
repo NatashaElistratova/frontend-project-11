@@ -53,66 +53,6 @@ export default async () => {
     }
   };
 
-  const renderPosts = (watchedState) => {
-    const postsWrap = document.querySelector('.posts');
-    postsWrap.innerHTML = `<div class="card border-0">
-                            <div class="card-body"></div>
-                          </div>`;
-
-    const postsTitle = document.createElement('h2');
-    postsTitle.classList.add('card-title', 'h4');
-    postsTitle.innerText = i18n.t('headings.posts');
-    postsWrap.querySelector('.card-body').appendChild(postsTitle);
-
-    const postLinkWrap = document.createElement('ul');
-    postLinkWrap.classList.add('list-group');
-    postsWrap.querySelector('.card').appendChild(postLinkWrap);
-
-    watchedState.posts.forEach((post) => {
-      const postLinkItem = document.createElement('li');
-      postLinkItem.classList.add('list-group-item', 'border-0');
-      const postLink = document.createElement('a');
-      postLink.setAttribute('href', post.link);
-      postLink.setAttribute('target', '_blank');
-
-      postLink.innerText = post.title;
-      postLinkItem.appendChild(postLink);
-      postLinkWrap.appendChild(postLinkItem);
-    });
-  };
-
-  const renderFeeds = (watchedState) => {
-    const feedsWrap = document.querySelector('.feeds');
-    feedsWrap.innerHTML = `<div class="card border-0">
-                            <div class="card-body"></div>
-                          </div>`;
-
-    const feedsTitle = document.createElement('h2');
-    feedsTitle.classList.add('card-title', 'h4');
-    feedsTitle.innerText = i18n.t('headings.feeds');
-
-    feedsWrap.querySelector('.card-body').appendChild(feedsTitle);
-
-    const feedWrap = document.createElement('ul');
-    feedWrap.classList.add('list-group');
-    feedsWrap.querySelector('.card').appendChild(feedWrap);
-
-    watchedState.feeds.forEach((feed) => {
-      const feedItem = document.createElement('li');
-      feedItem.classList.add('list-group-item', 'border-0');
-      const feedTitle = document.createElement('h3');
-      feedTitle.classList.add('h6', 'm-0');
-      const feedSubTitle = document.createElement('p');
-      feedSubTitle.classList.add('small', 'text-black-50', 'm-0');
-
-      feedTitle.innerText = feed.title;
-      feedSubTitle.innerText = feed.description;
-      feedItem.appendChild(feedTitle);
-      feedItem.appendChild(feedSubTitle);
-      feedWrap.appendChild(feedItem);
-    });
-  };
-
   const getRss = (url) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`, { params: { disableCache: true } })
     .then((result) => parseRss(result.data.contents, state.feeds.length, i18n))
     .then((data) => {
@@ -121,8 +61,6 @@ export default async () => {
       state.posts = [...state.posts, ...posts];
       state.form.success = { urlInput: i18n.t('success.rssAdded') };
 
-      renderPosts(state);
-      renderFeeds(state);
       state.form.urlInput = '';
       urlInput.focus();
     })
