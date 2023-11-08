@@ -33,22 +33,24 @@ const renderSuccess = (el, state) => {
   feedbackEl.textContent = successMessage;
 };
 
-const renderPosts = (watchedState, i18n) => {
-  const postsWrap = document.querySelector('.posts');
-  postsWrap.innerHTML = `<div class="card border-0">
-                          <div class="card-body"></div>
-                        </div>`;
+const renderPosts = (posts, i18n) => {
+  if (!document.querySelector('.posts .card')) {
+    const postsWrap = document.querySelector('.posts');
+    postsWrap.innerHTML = `<div class="card border-0">
+                            <div class="card-body"></div>
+                          </div>`;
 
-  const postsTitle = document.createElement('h2');
-  postsTitle.classList.add('card-title', 'h4');
-  postsTitle.innerText = i18n.t('headings.posts');
-  postsWrap.querySelector('.card-body').appendChild(postsTitle);
+    const postsTitle = document.createElement('h2');
+    postsTitle.classList.add('card-title', 'h4');
+    postsTitle.innerText = i18n.t('headings.posts');
+    postsWrap.querySelector('.card-body').appendChild(postsTitle);
 
-  const postLinkWrap = document.createElement('ul');
-  postLinkWrap.classList.add('list-group');
-  postsWrap.querySelector('.card').appendChild(postLinkWrap);
+    const postLinkWrap = document.createElement('ul');
+    postLinkWrap.classList.add('list-group');
+    postsWrap.querySelector('.card').appendChild(postLinkWrap);
+  }
 
-  watchedState.posts.forEach((post) => {
+  const newPosts = posts.map((post) => {
     const postLinkItem = document.createElement('li');
     postLinkItem.classList.add('list-group-item', 'border-0');
     const postLink = document.createElement('a');
@@ -57,11 +59,14 @@ const renderPosts = (watchedState, i18n) => {
 
     postLink.innerText = post.title;
     postLinkItem.appendChild(postLink);
-    postLinkWrap.appendChild(postLinkItem);
+    return postLinkItem;
   });
+
+  const postsWrap = document.querySelector('.posts .card .list-group');
+  postsWrap.prepend(...newPosts);
 };
 
-const renderFeeds = (watchedState, i18n) => {
+const renderFeeds = (watchedState, i18n, prevValue) => {
   const feedsWrap = document.querySelector('.feeds');
   feedsWrap.innerHTML = `<div class="card border-0">
                           <div class="card-body"></div>
@@ -91,9 +96,12 @@ const renderFeeds = (watchedState, i18n) => {
     feedItem.appendChild(feedSubTitle);
     feedWrap.appendChild(feedItem);
   });
+
+  const newFeed = watchedState.feeds.filter((feed) => !prevValue.some((el) => el.id === feed.id))[0];
+  renderPosts(newFeed.posts, i18n);
 };
 
-export default (el, state, i18n) => (path, currentValue) => {
+export default (el, state, i18n) => (path, currentValue, prevValue) => {
   switch (path) {
     case 'form.errors':
       renderError(el, state);
@@ -104,11 +112,8 @@ export default (el, state, i18n) => (path, currentValue) => {
     case 'form.urlInput':
       urlInput.value = currentValue || '';
       break;
-    case 'posts':
-      renderPosts(state, i18n);
-      break;
     case 'feeds':
-      renderFeeds(state, i18n);
+      renderFeeds(state, i18n, prevValue);
       break;
 
     default:

@@ -8,19 +8,18 @@ export default (str, feedId, i18n) => {
     throw new Error(errorMessage);
   }
 
-  const feedTitle = doc.querySelector('title').innerHTML;
-  const description = doc.querySelector('description').innerHTML;
-  const feed = { id: feedId, title: feedTitle, description };
+  const feedTitle = doc.querySelector('title').textContent;
+  const description = doc.querySelector('description').textContent;
 
   const items = doc.querySelectorAll('item');
   const posts = [...items].map((item, id) => {
-    const title = item.querySelector('title').innerHTML;
-    const link = item.querySelector('link').innerHTML;
+    const title = item.querySelector('title').textContent;
+    const link = item.querySelector('link').textContent;
 
-    return {
-      id, title, link, feedId,
-    };
+    return { id, title, link };
   });
 
-  return { feed, posts };
+  return {
+    id: feedId, title: feedTitle, description, posts,
+  };
 };

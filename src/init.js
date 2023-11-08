@@ -15,7 +15,6 @@ export default async () => {
 
   const initialState = {
     feeds: [],
-    posts: [],
     form: {
       valid: true,
       errors: {},
@@ -56,9 +55,7 @@ export default async () => {
   const getRss = (url) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`, { params: { disableCache: true } })
     .then((result) => parseRss(result.data.contents, state.feeds.length, i18n))
     .then((data) => {
-      const { feed, posts } = data;
-      state.feeds = [...state.feeds, feed];
-      state.posts = [...state.posts, ...posts];
+      state.feeds = [data, ...state.feeds];
       state.form.success = { urlInput: i18n.t('success.rssAdded') };
 
       state.form.urlInput = '';
