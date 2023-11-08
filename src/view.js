@@ -13,6 +13,8 @@ const renderError = (el, state) => {
 
   if (feedbackEl.textContent) {
     feedbackEl.textContent = errorMessage;
+    feedbackEl.classList.remove('text-success');
+    feedbackEl.classList.add('text-danger');
     return;
   }
 
@@ -31,7 +33,7 @@ const renderSuccess = (el, state) => {
   feedbackEl.textContent = successMessage;
 };
 
-export default (el, state) => (path, value) => {
+export default (el, state) => (path, currentValue) => {
   switch (path) {
     case 'form.errors':
       renderError(el, state);
@@ -40,7 +42,7 @@ export default (el, state) => (path, value) => {
       renderSuccess(el, state);
       break;
     case 'form.urlInput':
-      urlInput.value = value || '';
+      urlInput.value = currentValue || '';
       break;
 
     default:
