@@ -52,25 +52,61 @@ export default async () => {
   const getRss = (watchedState) => {
     const url = watchedState.form.urlInput;
 
-    return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`, { params: { disableCache: true } })
+    return axios
+      .get(
+        `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
+          url,
+        )}`,
+        { params: { disableCache: true } },
+      )
       .then((result) => parseRss(result.data.contents, url, state.feeds.length, i18n))
       .then((data) => {
         state.feeds.push(data);
         state.posts.push(...data.posts);
-        console.log(state);
 
-        state.form.success = { urlInput: i18n.t('success.rssAdded') };
+        state.form.success = {
+          urlInput: i18n.t('success.rssAdded'),
+        };
         state.form.urlInput = '';
         urlInput.focus();
-
-      // setTimeout(() => {
-      //   state.feeds.forEach((feed) => getRss(feed.url));
-      // }, 10000);
       })
       .catch((error) => {
         state.form.errors = { urlInput: error.message };
         state.form.valid = false;
       });
+  };
+
+  const getNewPosts = (watchedState) => {
+    const promises = watchedState.feeds.map((feed) => axios
+      .get(
+        `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
+          feed.url,
+        )}`,
+        { params: { disableCache: true } },
+      )
+      .then((result) => parseRss(
+        result.data.contents,
+        feed.url,
+        state.feeds.length,
+        i18n,
+      ))
+      .then((data) => {
+        const newPosts = data.posts.filter(
+          (post) => !watchedState.posts.some(
+            (el) => el.title === post.title,
+          ),
+        );
+        state.posts.push(...newPosts);
+      })
+      .catch((error) => {
+        console.log(error);
+      }));
+
+    Promise.all(promises).finally(() => {
+      setTimeout(() => {
+        getNewPosts(state);
+      }, 5000);
+    });
   };
 
   urlInput.addEventListener('input', (e) => {
@@ -87,6 +123,8 @@ export default async () => {
     if (!state.form.valid) return;
 
     await getRss(state);
+
+    await getNewPosts(state);
 
     console.log(state);
   });
