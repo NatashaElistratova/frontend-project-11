@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import onChange from 'on-change';
 import isEmpty from 'lodash/isEmpty.js';
 import resources from './locales/index.js';
+import locale from './locales/locale.js';
 import watch from './view.js';
 import parseRss from './parseRss.js';
 
@@ -15,6 +16,7 @@ export default async () => {
 
   const initialState = {
     feeds: [],
+    posts: [],
     form: {
       valid: true,
       errors: {},
@@ -29,20 +31,15 @@ export default async () => {
     resources,
   });
 
-  yup.setLocale({
-    string: {
-      required: () => ({ key: 'errors.validation.required' }),
-      url: () => ({ key: 'errors.validation.url' }),
-      notOneOf: () => ({ key: 'errors.validation.notOneOf' }),
-    },
-  });
+  yup.setLocale(locale);
 
   const state = onChange(initialState, watch(urlInput, initialState, i18n));
 
   const schema = yup.string().url();
 
   const validateUrl = async (el, feeds) => {
-    const actualSchema = schema.notOneOf(feeds);
+    const feedUrls = feeds.map((feed) => feed.url);
+    const actualSchema = schema.notOneOf(feedUrls);
     try {
       await actualSchema.validate(el, { abortEarly: false });
       return {};
@@ -52,19 +49,29 @@ export default async () => {
     }
   };
 
-  const getRss = (url) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`, { params: { disableCache: true } })
-    .then((result) => parseRss(result.data.contents, state.feeds.length, i18n))
-    .then((data) => {
-      state.feeds = [data, ...state.feeds];
-      state.form.success = { urlInput: i18n.t('success.rssAdded') };
+  const getRss = (watchedState) => {
+    const url = watchedState.form.urlInput;
 
-      state.form.urlInput = '';
-      urlInput.focus();
-    })
-    .catch((error) => {
-      state.form.errors = { urlInput: error.message };
-      state.form.valid = false;
-    });
+    return axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`, { params: { disableCache: true } })
+      .then((result) => parseRss(result.data.contents, url, state.feeds.length, i18n))
+      .then((data) => {
+        state.feeds.push(data);
+        state.posts.push(...data.posts);
+        console.log(state);
+
+        state.form.success = { urlInput: i18n.t('success.rssAdded') };
+        state.form.urlInput = '';
+        urlInput.focus();
+
+      // setTimeout(() => {
+      //   state.feeds.forEach((feed) => getRss(feed.url));
+      // }, 10000);
+      })
+      .catch((error) => {
+        state.form.errors = { urlInput: error.message };
+        state.form.valid = false;
+      });
+  };
 
   urlInput.addEventListener('input', (e) => {
     state.form.urlInput = e.target.value;
@@ -72,13 +79,14 @@ export default async () => {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const errors = await validateUrl(state.form.urlInput, state.feeds);
     state.form.errors = errors;
     state.form.valid = isEmpty(errors);
 
     if (!state.form.valid) return;
 
-    await getRss(state.form.urlInput);
+    await getRss(state);
 
     console.log(state);
   });

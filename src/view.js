@@ -11,14 +11,9 @@ const renderError = (el, state) => {
     return;
   }
 
-  if (feedbackEl.textContent) {
-    feedbackEl.textContent = errorMessage;
-    feedbackEl.classList.remove('text-success');
-    feedbackEl.classList.add('text-danger');
-    return;
-  }
-
   el.classList.add('is-invalid');
+  feedbackEl.classList.remove('text-success');
+  feedbackEl.classList.add('text-danger');
   feedbackEl.textContent = errorMessage;
 };
 
@@ -50,7 +45,7 @@ const renderPosts = (posts, i18n) => {
     postsWrap.querySelector('.card').appendChild(postLinkWrap);
   }
 
-  const newPosts = posts.map((post) => {
+  const postElements = posts.map((post) => {
     const postLinkItem = document.createElement('li');
     postLinkItem.classList.add('list-group-item', 'border-0');
     const postLink = document.createElement('a');
@@ -63,42 +58,53 @@ const renderPosts = (posts, i18n) => {
   });
 
   const postsWrap = document.querySelector('.posts .card .list-group');
-  postsWrap.prepend(...newPosts);
+  postsWrap.prepend(...postElements);
 };
 
-const renderFeeds = (watchedState, i18n, prevValue) => {
-  const feedsWrap = document.querySelector('.feeds');
-  feedsWrap.innerHTML = `<div class="card border-0">
-                          <div class="card-body"></div>
-                        </div>`;
+const renderFeeds = (feed, i18n) => {
+  if (!document.querySelector('.feeds .card')) {
+    const feedsWrap = document.querySelector('.feeds');
+    feedsWrap.innerHTML = `<div class="card border-0">
+                            <div class="card-body"></div>
+                          </div>`;
 
-  const feedsTitle = document.createElement('h2');
-  feedsTitle.classList.add('card-title', 'h4');
-  feedsTitle.innerText = i18n.t('headings.feeds');
+    const feedsTitle = document.createElement('h2');
+    feedsTitle.classList.add('card-title', 'h4');
+    feedsTitle.innerText = i18n.t('headings.feeds');
 
-  feedsWrap.querySelector('.card-body').appendChild(feedsTitle);
+    feedsWrap.querySelector('.card-body').appendChild(feedsTitle);
 
-  const feedWrap = document.createElement('ul');
-  feedWrap.classList.add('list-group');
-  feedsWrap.querySelector('.card').appendChild(feedWrap);
+    const feedWrap = document.createElement('ul');
+    feedWrap.classList.add('list-group');
+    feedsWrap.querySelector('.card').appendChild(feedWrap);
+  }
 
-  watchedState.feeds.forEach((feed) => {
-    const feedItem = document.createElement('li');
-    feedItem.classList.add('list-group-item', 'border-0');
-    const feedTitle = document.createElement('h3');
-    feedTitle.classList.add('h6', 'm-0');
-    const feedSubTitle = document.createElement('p');
-    feedSubTitle.classList.add('small', 'text-black-50', 'm-0');
+  // const feedElements = feeds.map((feed) => {
+  const feedItem = document.createElement('li');
+  feedItem.classList.add('list-group-item', 'border-0');
+  const feedTitle = document.createElement('h3');
+  feedTitle.classList.add('h6', 'm-0');
+  const feedSubTitle = document.createElement('p');
+  feedSubTitle.classList.add('small', 'text-black-50', 'm-0');
 
-    feedTitle.innerText = feed.title;
-    feedSubTitle.innerText = feed.description;
-    feedItem.appendChild(feedTitle);
-    feedItem.appendChild(feedSubTitle);
-    feedWrap.appendChild(feedItem);
-  });
+  feedTitle.innerText = feed.title;
+  feedSubTitle.innerText = feed.description;
+  feedItem.appendChild(feedTitle);
+  feedItem.appendChild(feedSubTitle);
+  // });
 
-  const newFeed = watchedState.feeds.filter((feed) => !prevValue.some((el) => el.id === feed.id))[0];
-  renderPosts(newFeed.posts, i18n);
+  const feedsWrap = document.querySelector('.feeds .card .list-group');
+  feedsWrap.prepend(feedItem);
+};
+
+const watchFeeds = (currentValue, prevValue, i18n) => {
+  const newFeed = currentValue.find((feed) => !prevValue.some((el) => el.id === feed.id));
+  renderFeeds(newFeed, i18n);
+};
+
+const watchPosts = (currentValue, prevValue, i18n) => {
+  const newPosts = currentValue.filter((post) => !prevValue.some((el) => el.id === post.id));
+  renderPosts(newPosts, i18n);
 };
 
 export default (el, state, i18n) => (path, currentValue, prevValue) => {
@@ -113,7 +119,10 @@ export default (el, state, i18n) => (path, currentValue, prevValue) => {
       urlInput.value = currentValue || '';
       break;
     case 'feeds':
-      renderFeeds(state, i18n, prevValue);
+      watchFeeds(currentValue, prevValue, i18n);
+      break;
+    case 'posts':
+      watchPosts(currentValue, prevValue, i18n);
       break;
 
     default:
