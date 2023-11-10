@@ -9,19 +9,24 @@ export default (str, feedUrl, feedId, i18n) => {
   }
 
   const feedTitle = doc.querySelector('title').textContent;
-  const description = doc.querySelector('description').textContent;
+  const feedDescription = doc.querySelector('description').textContent;
 
   const items = doc.querySelectorAll('item');
   const posts = [...items].map((item, id) => {
     const title = item.querySelector('title').textContent;
+    const description = item.querySelector('description').textContent;
     const link = item.querySelector('link').textContent;
 
     return {
-      id, title, link, feedId,
+      id, feedId, title, description, link,
     };
   });
 
   return {
-    id: feedId, url: feedUrl, title: feedTitle, description, posts,
+    id: feedId,
+    url: feedUrl,
+    title: feedTitle,
+    description: feedDescription,
+    posts,
   };
 };

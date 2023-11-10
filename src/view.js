@@ -28,6 +28,17 @@ const renderSuccess = (el, state) => {
   feedbackEl.textContent = successMessage;
 };
 
+const renderModal = (post) => {
+  const modal = document.querySelector('.modal');
+  const title = modal.querySelector('.modal-title');
+  const description = modal.querySelector('.modal-body');
+  const link = modal.querySelector('a');
+
+  title.innerText = post.title;
+  description.innerHTML = post.description;
+  link.setAttribute('href', post.link);
+};
+
 const renderPosts = (posts, i18n) => {
   if (!document.querySelector('.posts .card')) {
     const postsWrap = document.querySelector('.posts');
@@ -47,13 +58,29 @@ const renderPosts = (posts, i18n) => {
 
   const postElements = posts.map((post) => {
     const postLinkItem = document.createElement('li');
-    postLinkItem.classList.add('list-group-item', 'border-0');
+    postLinkItem.classList.add(
+      'list-group-item',
+      'border-0',
+      'd-flex',
+      'justify-content-between',
+      'align-items-center',
+    );
     const postLink = document.createElement('a');
     postLink.setAttribute('href', post.link);
     postLink.setAttribute('target', '_blank');
+    postLink.classList.add('fw-bold');
+
+    const postBtn = document.createElement('button');
+    postBtn.setAttribute('type', 'button');
+    postBtn.setAttribute('data-bs-toggle', 'modal');
+    postBtn.setAttribute('data-bs-target', '#postModal');
+    postBtn.classList.add('btn', 'btn-outline-primary');
+    postBtn.innerText = 'Просмотр';
+    postBtn.addEventListener('click', () => renderModal(post));
 
     postLink.innerText = post.title;
     postLinkItem.appendChild(postLink);
+    postLinkItem.appendChild(postBtn);
     return postLinkItem;
   });
 
