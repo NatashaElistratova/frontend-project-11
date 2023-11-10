@@ -79,7 +79,6 @@ const renderFeeds = (feed, i18n) => {
     feedsWrap.querySelector('.card').appendChild(feedWrap);
   }
 
-  // const feedElements = feeds.map((feed) => {
   const feedItem = document.createElement('li');
   feedItem.classList.add('list-group-item', 'border-0');
   const feedTitle = document.createElement('h3');
@@ -91,19 +90,24 @@ const renderFeeds = (feed, i18n) => {
   feedSubTitle.innerText = feed.description;
   feedItem.appendChild(feedTitle);
   feedItem.appendChild(feedSubTitle);
-  // });
 
   const feedsWrap = document.querySelector('.feeds .card .list-group');
   feedsWrap.prepend(feedItem);
 };
 
 const watchFeeds = (currentValue, prevValue, i18n) => {
-  const newFeed = currentValue.find((feed) => !prevValue.some((el) => el.id === feed.id));
+  const newFeed = currentValue.find(
+    (feed) => !prevValue.some((el) => el.id === feed.id),
+  );
   renderFeeds(newFeed, i18n);
 };
 
 const watchPosts = (currentValue, prevValue, i18n) => {
-  const newPosts = currentValue.filter((post) => !prevValue.some((el) => el.id === post.id));
+  const newPosts = currentValue.filter(
+    (post) => !prevValue.some(
+      (el) => el.feedId === post.feedId && el.id === post.id,
+    ),
+  );
   renderPosts(newPosts, i18n);
 };
 
