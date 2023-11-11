@@ -128,16 +128,23 @@ const watchFeeds = (currentValue, prevValue, i18n) => {
   const newFeed = currentValue.find(
     (feed) => !prevValue.some((el) => el.id === feed.id),
   );
+
   renderFeeds(newFeed, i18n);
 };
 
 const watchPosts = (currentValue, prevValue, i18n) => {
   const newPosts = currentValue.filter(
-    (post) => !prevValue.some(
-      (el) => el.feedId === post.feedId && el.id === post.id,
-    ),
+    (post) => !prevValue.some((el) => el.id === post.id),
   );
+
   renderPosts(newPosts, i18n);
+};
+
+const watchVisitedPosts = (currentValue) => {
+  const visitedPostId = [...currentValue].pop();
+  const visitedPost = document.querySelector(`[data-id="${visitedPostId}"]`);
+  visitedPost.classList.remove('fw-bold');
+  visitedPost.classList.add('fw-normal');
 };
 
 export default (el, state, i18n) => (path, currentValue, prevValue) => {
@@ -158,7 +165,7 @@ export default (el, state, i18n) => (path, currentValue, prevValue) => {
       watchPosts(currentValue, prevValue, i18n);
       break;
     case 'visitedPosts':
-      renderPosts(currentValue, i18n);
+      watchVisitedPosts(currentValue);
       break;
 
     default:
