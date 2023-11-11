@@ -113,7 +113,7 @@ export default async () => {
   };
 
   urlInput.addEventListener('input', (e) => {
-    state.form.urlInput = e.target.value;
+    state.form.urlInput = e.target.value.trim();
   });
 
   form.addEventListener('submit', async (e) => {
@@ -128,8 +128,6 @@ export default async () => {
     await getRss(state);
 
     await getNewPosts(state);
-
-    console.log(state);
   });
 
   postsWrap.addEventListener('click', (e) => {

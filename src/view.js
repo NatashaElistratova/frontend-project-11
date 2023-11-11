@@ -144,7 +144,7 @@ const watchVisitedPosts = (currentValue) => {
   const visitedPostId = [...currentValue].pop();
   const visitedPost = document.querySelector(`[data-id="${visitedPostId}"]`);
   visitedPost.classList.remove('fw-bold');
-  visitedPost.classList.add('fw-normal');
+  visitedPost.classList.add('fw-normal', 'link-secondary');
 };
 
 export default (el, state, i18n) => (path, currentValue, prevValue) => {
