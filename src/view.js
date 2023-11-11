@@ -57,8 +57,8 @@ const renderPosts = (posts, i18n) => {
   }
 
   const postElements = posts.map((post) => {
-    const postLinkItem = document.createElement('li');
-    postLinkItem.classList.add(
+    const postItem = document.createElement('li');
+    postItem.classList.add(
       'list-group-item',
       'border-0',
       'd-flex',
@@ -68,20 +68,22 @@ const renderPosts = (posts, i18n) => {
     const postLink = document.createElement('a');
     postLink.setAttribute('href', post.link);
     postLink.setAttribute('target', '_blank');
+    postLink.setAttribute('data-id', post.id);
     postLink.classList.add('fw-bold');
 
     const postBtn = document.createElement('button');
     postBtn.setAttribute('type', 'button');
     postBtn.setAttribute('data-bs-toggle', 'modal');
     postBtn.setAttribute('data-bs-target', '#postModal');
+    postBtn.setAttribute('data-id', post.id);
     postBtn.classList.add('btn', 'btn-outline-primary');
     postBtn.innerText = 'Просмотр';
     postBtn.addEventListener('click', () => renderModal(post));
 
     postLink.innerText = post.title;
-    postLinkItem.appendChild(postLink);
-    postLinkItem.appendChild(postBtn);
-    return postLinkItem;
+    postItem.appendChild(postLink);
+    postItem.appendChild(postBtn);
+    return postItem;
   });
 
   const postsWrap = document.querySelector('.posts .card .list-group');
@@ -154,6 +156,9 @@ export default (el, state, i18n) => (path, currentValue, prevValue) => {
       break;
     case 'posts':
       watchPosts(currentValue, prevValue, i18n);
+      break;
+    case 'visitedPosts':
+      renderPosts(currentValue, i18n);
       break;
 
     default:

@@ -11,6 +11,7 @@ import parseRss from './parseRss.js';
 export default async () => {
   const form = document.querySelector('[data-form="rss-form"]');
   const urlInput = document.querySelector('#url-input');
+  const postsWrap = document.querySelector('.posts');
   const defaultLang = 'ru';
   const i18n = i18next.createInstance();
 
@@ -23,6 +24,7 @@ export default async () => {
       success: {},
       urlInput: '',
     },
+    visitedPosts: new Set(),
   };
 
   await i18n.init({
@@ -59,7 +61,7 @@ export default async () => {
         )}`,
         { params: { disableCache: true } },
       )
-      .then((result) => parseRss(result.data.contents, url, state.feeds.length, i18n))
+      .then((result) => parseRss(result.data.contents, url, state, i18n))
       .then((data) => {
         state.feeds.push(data);
         state.posts.push(...data.posts);
@@ -87,7 +89,7 @@ export default async () => {
       .then((result) => parseRss(
         result.data.contents,
         feed.url,
-        state.feeds.length,
+        state,
         i18n,
       ))
       .then((data) => {
@@ -128,5 +130,12 @@ export default async () => {
     await getNewPosts(state);
 
     console.log(state);
+  });
+
+  postsWrap.addEventListener('click', (e) => {
+    if (!('id' in e.target.dataset)) return;
+
+    const { id } = e.target.dataset;
+    state.visitedPosts.add(id);
   });
 };

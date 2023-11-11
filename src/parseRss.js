@@ -1,4 +1,4 @@
-export default (str, feedUrl, feedId, i18n) => {
+export default (str, feedUrl, state, i18n) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(str, 'text/xml');
   const errorNode = doc.querySelector('parsererror');
@@ -10,12 +10,15 @@ export default (str, feedUrl, feedId, i18n) => {
 
   const feedTitle = doc.querySelector('title').textContent;
   const feedDescription = doc.querySelector('description').textContent;
+  const feedId = state.feeds.length;
 
   const items = doc.querySelectorAll('item');
-  const posts = [...items].map((item, id) => {
+  const postsLength = state.posts.length;
+  const posts = [...items].map((item, idx) => {
     const title = item.querySelector('title').textContent;
     const description = item.querySelector('description').textContent;
     const link = item.querySelector('link').textContent;
+    const id = postsLength + idx;
 
     return {
       id, feedId, title, description, link,
