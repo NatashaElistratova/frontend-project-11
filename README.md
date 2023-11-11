@@ -10,8 +10,10 @@ Node.js version > 18  is required.
 ## Demo
 https://rss-aggregator-theta.vercel.app/
 
-## Install
+## Install and run
 
 ```bash
-$ npm install @hexlet/code
+$ make install
+$ make build
+$ make start
 ```
