@@ -37,7 +37,7 @@ export default async () => {
 
   const state = onChange(initialState, watch(urlInput, initialState, i18n));
 
-  const schema = yup.string().url();
+  const schema = yup.string().required().url();
 
   const validateUrl = async (el, feeds) => {
     const feedUrls = feeds.map((feed) => feed.url);
@@ -51,7 +51,7 @@ export default async () => {
     }
   };
 
-  const getRss = (watchedState) => {
+  const getRss = async (watchedState) => {
     const url = watchedState.form.urlInput;
 
     return axios
@@ -78,7 +78,7 @@ export default async () => {
       });
   };
 
-  const getNewPosts = (watchedState) => {
+  const getNewPosts = async (watchedState) => {
     const promises = watchedState.feeds.map((feed) => axios
       .get(
         `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
