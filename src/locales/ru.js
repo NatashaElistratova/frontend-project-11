@@ -12,7 +12,7 @@ export default {
       parsingError: 'Ресурс не содержит валидный RSS',
     },
     success: {
-      rssAdded: 'RSS успешно добавлен',
+      rssAdded: 'RSS успешно загружен',
     },
     headings: {
       posts: 'Посты',
