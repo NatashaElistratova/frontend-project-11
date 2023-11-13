@@ -73,11 +73,10 @@ export default async () => {
         urlInput.focus();
       })
       .catch((error) => {
-        if (error.code === 'ERR_NETWORK') {
-          state.form.errors = { urlInput: i18n.t('errors.networkError') };
-        } else {
-          state.form.errors = { urlInput: error.message };
-        }
+        const errorMessage = error.code === 'ERR_NETWORK'
+          ? i18n.t('errors.networkError')
+          : error.message;
+        state.form.errors = { urlInput: errorMessage };
         state.form.valid = false;
       });
   };
@@ -90,12 +89,7 @@ export default async () => {
         )}`,
         { params: { disableCache: true } },
       )
-      .then((result) => parseRss(
-        result.data.contents,
-        feed.url,
-        state,
-        i18n,
-      ))
+      .then((result) => parseRss(result.data.contents, feed.url, state, i18n))
       .then((data) => {
         const newPosts = data.posts.filter(
           (post) => !watchedState.posts.some(
