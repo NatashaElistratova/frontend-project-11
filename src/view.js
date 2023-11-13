@@ -44,8 +44,8 @@ const renderListWrapper = (element, title) => {
   cardEl.classList.add('card', 'border-0');
   cardEl.innerHTML = `<div class="card-body">
                         <h2 class"card-title h4">${title}</h2>
-                        <ul class="list-group"></ul>
-                      </div>`;
+                      </div>
+                      <ul class="list-group"></ul>`;
   element.append(cardEl);
 };
 
