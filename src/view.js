@@ -39,21 +39,21 @@ const renderModal = (post) => {
   link.setAttribute('href', post.link);
 };
 
+const renderListWrapper = (element, title) => {
+  const cardEl = document.createElement('div');
+  cardEl.classList.add('card', 'border-0');
+  cardEl.innerHTML = `<div class="card-body">
+                        <h2 class"card-title h4">${title}</h2>
+                        <ul class="list-group"></ul>
+                      </div>`;
+  element.append(cardEl);
+};
+
 const renderPosts = (posts, i18n) => {
   if (!document.querySelector('.posts .card')) {
     const postsWrap = document.querySelector('.posts');
-    postsWrap.innerHTML = `<div class="card border-0">
-                            <div class="card-body"></div>
-                          </div>`;
-
-    const postsTitle = document.createElement('h2');
-    postsTitle.classList.add('card-title', 'h4');
-    postsTitle.innerText = i18n.t('headings.posts');
-    postsWrap.querySelector('.card-body').appendChild(postsTitle);
-
-    const postLinkWrap = document.createElement('ul');
-    postLinkWrap.classList.add('list-group');
-    postsWrap.querySelector('.card').appendChild(postLinkWrap);
+    const title = i18n.t('headings.posts');
+    renderListWrapper(postsWrap, title);
   }
 
   const postElements = posts.map((post) => {
@@ -93,19 +93,8 @@ const renderPosts = (posts, i18n) => {
 const renderFeeds = (feed, i18n) => {
   if (!document.querySelector('.feeds .card')) {
     const feedsWrap = document.querySelector('.feeds');
-    feedsWrap.innerHTML = `<div class="card border-0">
-                            <div class="card-body"></div>
-                          </div>`;
-
-    const feedsTitle = document.createElement('h2');
-    feedsTitle.classList.add('card-title', 'h4');
-    feedsTitle.innerText = i18n.t('headings.feeds');
-
-    feedsWrap.querySelector('.card-body').appendChild(feedsTitle);
-
-    const feedWrap = document.createElement('ul');
-    feedWrap.classList.add('list-group');
-    feedsWrap.querySelector('.card').appendChild(feedWrap);
+    const title = i18n.t('headings.feeds');
+    renderListWrapper(feedsWrap, title);
   }
 
   const feedItem = document.createElement('li');
