@@ -96,7 +96,6 @@ export default async () => {
             (el) => el.title === post.title,
           ),
         );
-        console.log(newPosts);
         state.posts.push(...newPosts);
       })
       .catch((error) => {
