@@ -73,7 +73,11 @@ export default async () => {
         urlInput.focus();
       })
       .catch((error) => {
-        state.form.errors = { urlInput: error.message };
+        if (error.code === 'ERR_NETWORK') {
+          state.form.errors = { urlInput: i18n.t('errors.networkError') };
+        } else {
+          state.form.errors = { urlInput: error.message };
+        }
         state.form.valid = false;
       });
   };

@@ -10,6 +10,7 @@ export default {
         notOneOf: 'RSS уже существует',
       },
       parsingError: 'Ресурс не содержит валидный RSS',
+      networkError: 'Ошибка сети',
     },
     success: {
       rssAdded: 'RSS успешно загружен',
