@@ -22,7 +22,6 @@ export default (rss) => {
   });
 
   return {
-    // id: feedId,
     title: feedTitle,
     description: feedDescription,
     posts,

@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import onChange from 'on-change';
 import isEmpty from 'lodash/isEmpty.js';
+import uniqueId from 'lodash/uniqueId.js';
 import resources from './locales/index.js';
 import locale from './locales/locale.js';
 import watch from './view.js';
@@ -63,7 +64,19 @@ export default async () => {
       )
       .then((result) => parseRss(result.data.contents))
       .then((data) => {
-        state.feeds.push(data);
+        const newFeed = data;
+        const newFeedId = uniqueId();
+        newFeed.id = newFeedId;
+
+        const newPosts = data.posts;
+        newPosts.map((post) => {
+          const newPost = post;
+          newPost.id = uniqueId();
+          newPost.feedId = newFeedId;
+          return newPost;
+        });
+
+        state.feeds.push(newFeed);
         state.posts.push(...data.posts);
         state.feedUrls.push(url);
 
