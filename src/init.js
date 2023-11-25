@@ -127,12 +127,11 @@ export default async () => {
     });
   };
 
-  urlInput.addEventListener('input', (e) => {
-    state.form.urlInput = e.target.value.trim();
-  });
-
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+
+    const formData = new FormData(e.target);
+    state.form.urlInput = formData.get('url').trim();
 
     validateUrl(state).then((errors) => {
       state.form.errors = errors;
