@@ -30,7 +30,7 @@ export default {
       template: 'index.html',
     }),
   ],
-  entry: './index.js',
+  entry: './src/index.js',
   output: {
     clean: true,
   },
