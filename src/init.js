@@ -12,8 +12,10 @@ import parseRss from './parseRss.js';
 export default async () => {
   const form = document.querySelector('[data-form="rss-form"]');
   const urlInput = document.querySelector('#url-input');
+  const submitBtn = document.querySelector('button[type="submit"]');
   const postsWrap = document.querySelector('.posts');
   const defaultLang = 'ru';
+  const getNewPostsTimeout = 5000;
   const i18n = i18next.createInstance();
 
   const initialState = {
@@ -121,7 +123,7 @@ export default async () => {
     Promise.all(promises).finally(() => {
       setTimeout(() => {
         getNewPosts(state, url);
-      }, 5000);
+      }, getNewPostsTimeout);
     });
   };
 
@@ -138,7 +140,10 @@ export default async () => {
 
       if (!state.form.valid) return;
 
+      submitBtn.setAttribute('disabled', true);
+
       getRss(state).then((feedUrl) => {
+        submitBtn.removeAttribute('disabled');
         getNewPosts(state, feedUrl);
       });
     });
