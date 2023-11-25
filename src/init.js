@@ -18,6 +18,7 @@ export default async () => {
   const initialState = {
     feeds: [],
     posts: [],
+    feedUrls: [],
     form: {
       valid: true,
       errors: {},
@@ -39,11 +40,10 @@ export default async () => {
 
   const schema = yup.string().required().url();
 
-  const validateUrl = async (el, feeds) => {
-    const feedUrls = feeds.map((feed) => feed.url);
-    const actualSchema = schema.notOneOf(feedUrls);
+  const validateUrl = async (watchedState) => {
+    const actualSchema = schema.notOneOf(watchedState.feedUrls);
     try {
-      await actualSchema.validate(el, { abortEarly: false });
+      await actualSchema.validate(watchedState.form.urlInput, { abortEarly: false });
       return {};
     } catch (e) {
       const [message] = e.errors.map((err) => i18n.t(err.key));
@@ -51,7 +51,7 @@ export default async () => {
     }
   };
 
-  const getRss = async (watchedState) => {
+  const getRss = (watchedState) => {
     const url = watchedState.form.urlInput;
 
     return axios
@@ -61,31 +61,34 @@ export default async () => {
         )}`,
         { params: { disableCache: true } },
       )
-      .then((result) => parseRss(result.data.contents, url, state, i18n))
+      .then((result) => parseRss(result.data.contents))
       .then((data) => {
         state.feeds.push(data);
         state.posts.push(...data.posts);
+        state.feedUrls.push(url);
 
         state.form.success = {
           urlInput: i18n.t('success.rssAdded'),
         };
         state.form.urlInput = '';
         urlInput.focus();
+
+        return url;
       })
       .catch((error) => {
         const errorMessage = error.code === 'ERR_NETWORK'
           ? i18n.t('errors.networkError')
           : error.message;
-        state.form.errors = { urlInput: errorMessage };
+        state.form.errors = { urlInput: i18n.t(errorMessage) };
         state.form.valid = false;
       });
   };
 
-  const getNewPosts = async (watchedState) => {
+  const getNewPosts = (watchedState, url) => {
     const promises = watchedState.feeds.map((feed) => axios
       .get(
         `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
-          feed.url,
+          url,
         )}`,
         { params: { disableCache: true } },
       )
@@ -104,7 +107,7 @@ export default async () => {
 
     Promise.all(promises).finally(() => {
       setTimeout(() => {
-        getNewPosts(state);
+        getNewPosts(state, url);
       }, 5000);
     });
   };
@@ -113,18 +116,19 @@ export default async () => {
     state.form.urlInput = e.target.value.trim();
   });
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const errors = await validateUrl(state.form.urlInput, state.feeds);
-    state.form.errors = errors;
-    state.form.valid = isEmpty(errors);
+    validateUrl(state).then((errors) => {
+      state.form.errors = errors;
+      state.form.valid = isEmpty(errors);
 
-    if (!state.form.valid) return;
+      if (!state.form.valid) return;
 
-    await getRss(state);
-
-    await getNewPosts(state);
+      getRss(state).then((feedUrl) => {
+        getNewPosts(state, feedUrl);
+      });
+    });
   });
 
   postsWrap.addEventListener('click', (e) => {
