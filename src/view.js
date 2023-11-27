@@ -1,5 +1,3 @@
-const urlInput = document.querySelector('#url-input');
-
 const renderError = (el, state) => {
   const feedbackEl = document.querySelector('.feedback');
   const { errors } = state.form;
@@ -145,7 +143,8 @@ export default (el, state, i18n) => (path, currentValue, prevValue) => {
       renderSuccess(el, state);
       break;
     case 'form.urlInput':
-      urlInput.value = currentValue || '';
+      const input = el;
+      input.value = currentValue || '';
       break;
     case 'feeds':
       watchFeeds(currentValue, prevValue, i18n);
