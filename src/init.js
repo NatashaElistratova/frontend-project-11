@@ -54,32 +54,26 @@ export default async () => {
     }
   };
 
-  const getRss = (watchedState) => {
-    const url = watchedState.form.urlInput;
+  const createProxy = (url) => {
+    const urlProxy = new URL('/get', 'https://allorigins.hexlet.app');
+    urlProxy.searchParams.set('url', url);
+    urlProxy.searchParams.set('disableCache', 'true');
+    return urlProxy.toString();
+  };
 
-    return axios
-      .get(
-        `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
-          url,
-        )}`,
-        { params: { disableCache: true } },
-      )
+  const getRss = (watchedState) => {
+    const url = createProxy(watchedState.form.urlInput);
+
+    return axios.get(url)
       .then((result) => parseRss(result.data.contents))
       .then((data) => {
-        const newFeed = data;
         const newFeedId = uniqueId();
-        newFeed.id = newFeedId;
+        const newFeed = { url, id: newFeedId, ...data };
 
-        const newPosts = data.posts;
-        newPosts.map((post) => {
-          const newPost = post;
-          newPost.id = uniqueId();
-          newPost.feedId = newFeedId;
-          return newPost;
-        });
+        const newPosts = data.posts.map((post) => ({ feedId: newFeedId, id: uniqueId(), ...post }));
 
         state.feeds.push(newFeed);
-        state.posts.push(...data.posts);
+        state.posts.push(...newPosts);
         state.feedUrls.push(url);
 
         state.form.success = {
@@ -99,30 +93,29 @@ export default async () => {
       });
   };
 
-  const getNewPosts = (watchedState, url) => {
-    const promises = watchedState.feeds.map((feed) => axios
-      .get(
-        `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
-          url,
-        )}`,
-        { params: { disableCache: true } },
-      )
-      .then((result) => parseRss(result.data.contents, feed.url, state, i18n))
-      .then((data) => {
-        const newPosts = data.posts.filter(
-          (post) => !watchedState.posts.some(
-            (el) => el.title === post.title,
-          ),
-        );
-        state.posts.push(...newPosts);
-      })
-      .catch((error) => {
-        console.log(error);
-      }));
+  const getNewPosts = (watchedState) => {
+    const promises = watchedState.feeds.map((feed) => {
+      const url = createProxy(feed.url);
+
+      return axios
+        .get(url)
+        .then((result) => parseRss(result.data.contents, feed.url, state, i18n))
+        .then((data) => {
+          const newPosts = data.posts.filter(
+            (post) => !watchedState.posts.some(
+              (el) => el.title === post.title,
+            ),
+          );
+          state.posts.push(...newPosts);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    });
 
     Promise.all(promises).finally(() => {
       setTimeout(() => {
-        getNewPosts(state, url);
+        getNewPosts(state);
       }, getNewPostsTimeout);
     });
   };
