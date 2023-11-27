@@ -144,6 +144,8 @@ const watchVisitedPosts = (currentValue) => {
 };
 
 export default (el, state, i18n) => (path, currentValue, prevValue) => {
+  const input = el;
+
   switch (path) {
     case 'form.errors':
       renderError(el, state);
@@ -152,7 +154,6 @@ export default (el, state, i18n) => (path, currentValue, prevValue) => {
       renderSuccess(el, state);
       break;
     case 'form.urlInput':
-      const input = el;
       input.value = currentValue;
       break;
     case 'feeds':
