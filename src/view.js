@@ -1,7 +1,7 @@
-const renderError = (el, state) => {
+const renderError = (el, state, i18n) => {
   const feedbackEl = document.querySelector('.feedback');
   const { errors } = state.form;
-  const errorMessage = errors.urlInput;
+  const errorMessage = i18n.t(errors.urlInput);
 
   if (!errorMessage) {
     el.classList.remove('is-invalid');
@@ -15,10 +15,9 @@ const renderError = (el, state) => {
   feedbackEl.textContent = errorMessage;
 };
 
-const renderSuccess = (el, state) => {
+const renderSuccess = (el, i18n) => {
   const feedbackEl = document.querySelector('.feedback');
-  const { success } = state.form;
-  const successMessage = success.urlInput;
+  const successMessage = i18n.t('success.rssAdded');
 
   el.classList.remove('is-invalid');
   feedbackEl.classList.remove('text-danger');
@@ -148,10 +147,10 @@ export default (el, state, i18n) => (path, currentValue, prevValue) => {
 
   switch (path) {
     case 'form.errors':
-      renderError(el, state);
+      renderError(el, state, i18n);
       break;
     case 'form.success':
-      renderSuccess(el, state);
+      renderSuccess(el, i18n);
       break;
     case 'form.urlInput':
       input.value = currentValue;
