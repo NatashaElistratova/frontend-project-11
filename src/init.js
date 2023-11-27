@@ -37,21 +37,21 @@ export default async () => {
     resources,
   });
 
-  yup.setLocale(locale);
-
   const state = onChange(initialState, watch(urlInput, initialState, i18n));
 
-  const schema = yup.string().required().url();
+  yup.setLocale(locale);
 
-  const validateUrl = async (watchedState) => {
+  const schema = yup.string().url().required();
+
+  const validateUrl = (url, watchedState) => {
     const actualSchema = schema.notOneOf(watchedState.feedUrls);
-    try {
-      await actualSchema.validate(watchedState.form.urlInput, { abortEarly: false });
-      return {};
-    } catch (e) {
-      const [message] = e.errors.map((err) => i18n.t(err.key));
-      return { urlInput: message };
-    }
+
+    return actualSchema.validate(url)
+      .then(() => ({}))
+      .catch((e) => {
+        const [message] = e.errors.map((err) => i18n.t(err.key));
+        return { urlInput: message };
+      });
   };
 
   const createProxy = (url) => {
@@ -125,13 +125,15 @@ export default async () => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
-    state.form.urlInput = formData.get('url').trim();
+    const url = formData.get('url').trim();
 
-    validateUrl(state).then((errors) => {
+    validateUrl(url, state).then((errors) => {
       state.form.errors = errors;
       state.form.valid = isEmpty(errors);
 
       if (!state.form.valid) return;
+
+      state.form.urlInput = url;
 
       submitBtn.setAttribute('disabled', true);
 
