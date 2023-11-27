@@ -62,9 +62,10 @@ export default async () => {
   };
 
   const getRss = (watchedState) => {
-    const url = createProxy(watchedState.form.urlInput);
+    const url = watchedState.form.urlInput;
+    const proxyUrl = createProxy(url);
 
-    return axios.get(url)
+    return axios.get(proxyUrl)
       .then((result) => parseRss(result.data.contents))
       .then((data) => {
         const newFeedId = uniqueId();
@@ -99,7 +100,7 @@ export default async () => {
 
       return axios
         .get(url)
-        .then((result) => parseRss(result.data.contents, feed.url, state, i18n))
+        .then((result) => parseRss(result.data.contents))
         .then((data) => {
           const newPosts = data.posts.filter(
             (post) => !watchedState.posts.some(

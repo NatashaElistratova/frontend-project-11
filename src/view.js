@@ -39,11 +39,20 @@ const renderModal = (post) => {
 
 const renderListWrapper = (element, title) => {
   const cardEl = document.createElement('div');
+  const cardBody = document.createElement('div');
+  const titleEl = document.createElement('h2');
+  const list = document.createElement('ul');
+
   cardEl.classList.add('card', 'border-0');
-  cardEl.innerHTML = `<div class="card-body">
-                        <h2 class"card-title h4">${title}</h2>
-                      </div>
-                      <ul class="list-group"></ul>`;
+  cardBody.classList.add('card-body');
+  titleEl.classList.add('card-title', 'h4');
+  list.classList.add('list-group');
+
+  titleEl.innerText = title;
+
+  cardBody.append(titleEl);
+  cardEl.append(cardBody);
+  cardEl.append(list);
   element.append(cardEl);
 };
 
@@ -144,7 +153,7 @@ export default (el, state, i18n) => (path, currentValue, prevValue) => {
       break;
     case 'form.urlInput':
       const input = el;
-      input.value = currentValue || '';
+      input.value = currentValue;
       break;
     case 'feeds':
       watchFeeds(currentValue, prevValue, i18n);
