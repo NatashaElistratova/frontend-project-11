@@ -10,7 +10,7 @@ import watch from './view.js';
 import parseRss from './parseRss.js';
 
 const createProxy = (url) => {
-  const urlProxy = new URL('/get', 'https://allorigins.hexlet.app');
+  const urlProxy = new URL('/get', 'https://allorigins.hexlet.ap');
   urlProxy.searchParams.set('url', url);
   urlProxy.searchParams.set('disableCache', 'true');
   return urlProxy.toString();
@@ -38,7 +38,7 @@ const getRss = (watchedState) => {
     })
     .catch((error) => {
       const errorMessage = error.code === 'ERR_NETWORK'
-        ? 'networkError'
+        ? 'errors.networkError'
         : error.message;
 
       watchedState.form.errors = { urlInput: errorMessage };
