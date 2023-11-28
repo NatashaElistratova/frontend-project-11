@@ -10,7 +10,7 @@ import watch from './view.js';
 import parseRss from './parseRss.js';
 
 const createProxy = (url) => {
-  const urlProxy = new URL('/get', 'https://allorigins.hexlet.ap');
+  const urlProxy = new URL('/get', 'https://allorigins.hexlet.app');
   urlProxy.searchParams.set('url', url);
   urlProxy.searchParams.set('disableCache', 'true');
   return urlProxy.toString();
