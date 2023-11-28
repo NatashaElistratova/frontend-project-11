@@ -164,7 +164,6 @@ export default (el, state, i18n) => (path, currentValue, prevValue) => {
     case 'visitedPosts':
       watchVisitedPosts(currentValue);
       break;
-
     default:
       break;
   }

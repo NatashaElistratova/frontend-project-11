@@ -41,11 +41,8 @@ const getRss = (watchedState) => {
         ? 'networkError'
         : error.message;
 
-      watchedState.form = {
-        ...watchedState,
-        errors: { urlInput: errorMessage },
-        valid: false,
-      };
+      watchedState.form.errors = { urlInput: errorMessage };
+      watchedState.form.valid = false;
     });
 };
 
