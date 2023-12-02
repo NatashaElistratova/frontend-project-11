@@ -88,7 +88,7 @@ export default () => {
       valid: true,
       errors: {},
       urlInput: '',
-      status: '', // processing, success, error,
+      status: '',
     },
     visitedPosts: new Set(),
   };
@@ -134,9 +134,7 @@ export default () => {
         state.form.urlInput = url;
         state.form.status = 'processing';
 
-        getRss(state).then(() => {
-          getNewPosts(state, getPostsTimeout);
-        });
+        getRss(state);
       });
     });
 
@@ -146,5 +144,9 @@ export default () => {
       const { id } = e.target.dataset;
       state.visitedPosts.add(id);
     });
+
+    setTimeout(() => {
+      getNewPosts(state, getPostsTimeout);
+    }, getPostsTimeout);
   });
 };
