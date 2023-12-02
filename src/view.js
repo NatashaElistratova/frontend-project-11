@@ -31,7 +31,7 @@ const renderModal = (post) => {
   const description = modal.querySelector('.modal-body');
   const link = modal.querySelector('a');
 
-  title.innerText = post.title;
+  title.textContent = post.title;
   description.innerHTML = post.description;
   link.setAttribute('href', post.link);
 };
@@ -47,7 +47,7 @@ const renderListWrapper = (element, title) => {
   titleEl.classList.add('card-title', 'h4');
   list.classList.add('list-group');
 
-  titleEl.innerText = title;
+  titleEl.textContent = title;
 
   cardBody.append(titleEl);
   cardEl.append(cardBody);
@@ -83,10 +83,10 @@ const renderPosts = (posts, i18n) => {
     postBtn.setAttribute('data-bs-target', '#postModal');
     postBtn.setAttribute('data-id', post.id);
     postBtn.classList.add('btn', 'btn-outline-primary');
-    postBtn.innerText = 'Просмотр';
+    postBtn.textContent = 'Просмотр';
     postBtn.addEventListener('click', () => renderModal(post));
 
-    postLink.innerText = post.title;
+    postLink.textContent = post.title;
     postItem.appendChild(postLink);
     postItem.appendChild(postBtn);
     return postItem;
@@ -110,8 +110,8 @@ const renderFeeds = (feed, i18n) => {
   const feedSubTitle = document.createElement('p');
   feedSubTitle.classList.add('small', 'text-black-50', 'm-0');
 
-  feedTitle.innerText = feed.title;
-  feedSubTitle.innerText = feed.description;
+  feedTitle.textContent = feed.title;
+  feedSubTitle.textContent = feed.description;
   feedItem.appendChild(feedTitle);
   feedItem.appendChild(feedSubTitle);
 
@@ -142,18 +142,37 @@ const watchVisitedPosts = (currentValue) => {
   visitedPost.classList.add('fw-normal', 'link-secondary');
 };
 
-export default (el, state, i18n) => (path, currentValue, prevValue) => {
-  const input = el;
+const watchProcess = (process, elements, state, i18n) => {
+  const { urlInput, submitBtn } = elements;
+
+  switch (process) {
+    case 'processing':
+      submitBtn.setAttribute('disabled', true);
+      break;
+    case 'success':
+      renderSuccess(urlInput, i18n);
+      submitBtn.removeAttribute('disabled');
+      urlInput.focus();
+      break;
+    case 'error':
+      renderError(urlInput, state, i18n);
+      submitBtn.removeAttribute('disabled');
+      break;
+
+    default:
+      break;
+  }
+};
+
+export default (elements, state, i18n) => (path, currentValue, prevValue) => {
+  const { urlInput } = elements;
 
   switch (path) {
-    case 'form.errors':
-      renderError(el, state, i18n);
-      break;
-    case 'form.success':
-      renderSuccess(el, i18n);
+    case 'form.status':
+      watchProcess(currentValue, elements, state, i18n);
       break;
     case 'form.urlInput':
-      input.value = currentValue;
+      urlInput.value = currentValue;
       break;
     case 'feeds':
       watchFeeds(currentValue, prevValue, i18n);

@@ -30,8 +30,7 @@ const getRss = (watchedState) => {
 
       watchedState.feeds.push(newFeed);
       watchedState.posts.push(...newPosts);
-      watchedState.feedUrls.push(url);
-      watchedState.form.success = true;
+      watchedState.form.status = 'success';
       watchedState.form.urlInput = '';
 
       return url;
@@ -42,7 +41,7 @@ const getRss = (watchedState) => {
         : error.message;
 
       watchedState.form.errors = { urlInput: errorMessage };
-      watchedState.form.valid = false;
+      watchedState.form.status = 'error';
     });
 };
 
@@ -85,12 +84,11 @@ export default () => {
   const initialState = {
     feeds: [],
     posts: [],
-    feedUrls: [],
     form: {
       valid: true,
       errors: {},
-      success: null,
       urlInput: '',
+      status: '', // processing, success, error,
     },
     visitedPosts: new Set(),
   };
@@ -100,14 +98,14 @@ export default () => {
     debug: false,
     resources,
   }).then(() => {
-    const state = onChange(initialState, watch(urlInput, initialState, i18n));
+    const state = onChange(initialState, watch({ urlInput, submitBtn }, initialState, i18n));
 
     yup.setLocale(locale);
 
     const schema = yup.string().url().required();
 
-    const validateUrl = (url, watchedState) => {
-      const actualSchema = schema.notOneOf(watchedState.feedUrls);
+    const validateUrl = (url, feedUrls) => {
+      const actualSchema = schema.notOneOf(feedUrls);
 
       return actualSchema.validate(url)
         .then(() => ({}))
@@ -122,20 +120,21 @@ export default () => {
 
       const formData = new FormData(e.target);
       const url = formData.get('url').trim();
+      const feedUrls = state.feeds.map((feed) => feed.url);
 
-      validateUrl(url, state).then((errors) => {
+      validateUrl(url, feedUrls).then((errors) => {
         state.form.errors = errors;
         state.form.valid = isEmpty(errors);
 
-        if (!state.form.valid) return;
+        if (!state.form.valid) {
+          state.form.status = 'error';
+          return;
+        }
 
         state.form.urlInput = url;
-
-        submitBtn.setAttribute('disabled', true);
+        state.form.status = 'processing';
 
         getRss(state).then(() => {
-          submitBtn.removeAttribute('disabled');
-          urlInput.focus();
           getNewPosts(state, getPostsTimeout);
         });
       });
