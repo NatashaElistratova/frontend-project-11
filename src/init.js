@@ -9,6 +9,8 @@ import locale from './locales/locale.js';
 import watch from './view.js';
 import parseRss from './parseRss.js';
 
+const getPostsTimeout = 5000;
+
 const createProxy = (url) => {
   const urlProxy = new URL('/get', 'https://allorigins.hexlet.app');
   urlProxy.searchParams.set('url', url);
@@ -36,16 +38,22 @@ const getRss = (watchedState) => {
       return url;
     })
     .catch((error) => {
-      const errorMessage = error.code === 'ERR_NETWORK'
-        ? 'errors.networkError'
-        : error.message;
+      let errorMessage = '';
+
+      if (error.code === 'ERR_NETWORK') {
+        errorMessage = 'errors.networkError';
+      } else if (error.code === 'err_parser') {
+        errorMessage = 'errors.parsingError';
+      } else {
+        errorMessage = error.message;
+      }
 
       watchedState.form.errors = { urlInput: errorMessage };
       watchedState.form.status = 'error';
     });
 };
 
-const getNewPosts = (watchedState, timeout) => {
+const getNewPosts = (watchedState) => {
   const promises = watchedState.feeds.map((feed) => {
     const url = createProxy(feed.url);
 
@@ -66,9 +74,7 @@ const getNewPosts = (watchedState, timeout) => {
   });
 
   Promise.all(promises).finally(() => {
-    setTimeout(() => {
-      getNewPosts(watchedState, timeout);
-    }, timeout);
+    setTimeout(() => getNewPosts(watchedState), getPostsTimeout);
   });
 };
 
@@ -78,7 +84,6 @@ export default () => {
   const submitBtn = document.querySelector('button[type="submit"]');
   const postsWrap = document.querySelector('.posts');
   const defaultLang = 'ru';
-  const getPostsTimeout = 5000;
   const i18n = i18next.createInstance();
 
   const initialState = {
@@ -123,18 +128,19 @@ export default () => {
       const feedUrls = state.feeds.map((feed) => feed.url);
 
       validateUrl(url, feedUrls).then((errors) => {
-        state.form.errors = errors;
-        state.form.valid = isEmpty(errors);
+        const isError = !isEmpty(errors);
 
-        if (!state.form.valid) {
+        if (isError) {
+          state.form.errors = errors;
+          state.form.valid = false;
           state.form.status = 'error';
-          return;
+        } else {
+          state.form.urlInput = url;
+          state.form.valid = true;
+          state.form.status = 'processing';
+
+          getRss(state);
         }
-
-        state.form.urlInput = url;
-        state.form.status = 'processing';
-
-        getRss(state);
       });
     });
 
@@ -145,8 +151,6 @@ export default () => {
       state.visitedPosts.add(id);
     });
 
-    setTimeout(() => {
-      getNewPosts(state, getPostsTimeout);
-    }, getPostsTimeout);
+    setTimeout(() => getNewPosts(state), getPostsTimeout);
   });
 };

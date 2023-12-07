@@ -32,7 +32,7 @@ const renderModal = (post) => {
   const link = modal.querySelector('a');
 
   title.textContent = post.title;
-  description.innerHTML = post.description;
+  description.textContent = post.description;
   link.setAttribute('href', post.link);
 };
 
@@ -142,21 +142,21 @@ const watchVisitedPosts = (currentValue) => {
   visitedPost.classList.add('fw-normal', 'link-secondary');
 };
 
-const watchProcess = (process, elements, state, i18n) => {
+const watchStatus = (process, elements, state, i18n) => {
   const { urlInput, submitBtn } = elements;
 
   switch (process) {
     case 'processing':
-      submitBtn.setAttribute('disabled', true);
+      submitBtn.disabled = true;
       break;
     case 'success':
       renderSuccess(urlInput, i18n);
-      submitBtn.removeAttribute('disabled');
+      submitBtn.disabled = false;
       urlInput.focus();
       break;
     case 'error':
       renderError(urlInput, state, i18n);
-      submitBtn.removeAttribute('disabled');
+      submitBtn.disabled = false;
       break;
 
     default:
@@ -169,7 +169,7 @@ export default (elements, state, i18n) => (path, currentValue, prevValue) => {
 
   switch (path) {
     case 'form.status':
-      watchProcess(currentValue, elements, state, i18n);
+      watchStatus(currentValue, elements, state, i18n);
       break;
     case 'form.urlInput':
       urlInput.value = currentValue;
