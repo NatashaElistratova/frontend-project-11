@@ -10,6 +10,10 @@
   },
   "author": "Natalia Elistratova",
   "license": "ISC",
+  "scripts": {
+    "build": "NODE_ENV=production webpack --mode production"
+  },
+
   "bugs": {
     "url": "https://github.com/NatashaElistratova/frontend-project-11/issues"
   },
